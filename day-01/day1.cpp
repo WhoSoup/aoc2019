@@ -14,17 +14,14 @@ int fuelfuel(int mass) {
 }
 
 int main() {
-    ifstream myfile;
-    myfile.open("input.txt");
-    string line;
+    ifstream in("input.txt");
+    int f;
     long total1 = 0;
     long total2 = 0;
-    while (getline(myfile, line)) {
-        int i = stoi(line);
-        total1 += fuel(i);
-        total2 += fuelfuel(i);
+    while (in >> f) {
+        total1 += fuel(f);
+        total2 += fuelfuel(f);
     }
-    myfile.close();
     cout << total1 << endl;
     cout << total2 << endl;
     return 0;
