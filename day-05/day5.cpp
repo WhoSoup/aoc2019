@@ -31,14 +31,12 @@ class Mode {
             return code;
         }
         void p() {
-            std::cout << "pos: " << pos << std::endl;
             std::cout << "opcode: " << code << std::endl;
             for (int i = 0; i < modes.size(); i++) {
                 std::cout << i << ": " << modes[i] << std::endl;
             }
         }
     private:
-        int pos;
         int code;
         int _next = 0;
         std::vector<int> modes;
@@ -47,12 +45,13 @@ class Mode {
 class IntCode {
     public:
         IntCode(std::string input) {
-            inputter = 0;
             Load(input);
         }
-        void Load(std::string input) {
+        void Load(std::string program) {
+            inputter = 0;
             memory.clear();
-            std::stringstream ss(input);
+            input.clear();
+            std::stringstream ss(program);
 
             for (int i; ss >> i;) {
                 memory.push_back(i);    
@@ -71,7 +70,6 @@ class IntCode {
             pos = 0;
             while (pos != -1) {
                 mode = new Mode(memory[pos]);
-
                 switch (mode->opcode()) {
                     case 1:
                         pos += OpCodeAdd();
@@ -84,6 +82,18 @@ class IntCode {
                         break;
                     case 4:
                         pos += OpCodePrint();
+                        break;
+                    case 5:
+                        pos = OpCodeJIT(); // assign
+                        break;
+                    case 6:
+                        pos = OpCodeJIF(); // assign
+                        break;
+                    case 7:
+                        pos += OpCodeLessThan();
+                        break;
+                    case 8:
+                        pos += OpCodeEQ();
                         break;
                     case 99:
                         pos = OpCodeExit(); // assign to pos
@@ -103,43 +113,74 @@ class IntCode {
         int pos;
         int inputter;
         Mode * mode;
-        int access(int spot, int mode) {
-            if (mode == 1) {
+        int access(int spot) {
+            int m = mode->next();
+            if (m == 1) {
                 return memory[pos+spot];
             }
             return memory[memory[pos+spot]];
         }
         int OpCodeAdd() {
-            int a = access(1, mode->next());
-            int b = access(2, mode->next());
+            int a = access(1);
+            int b = access(2);
             int t = memory[pos+3];
             memory[t] = a+b;
-//            printf("opcode 1: %d %d %d\n", a, b, t);
             return 4;
         }
         int OpCodeMul() {
-            int a = access(1, mode->next());
-            int b = access(2, mode->next());
+            int a = access(1);
+            int b = access(2);
             int t = memory[pos+3];
             memory[t] = a*b;
-            //printf("opcode 2: %d %d %d\n", a, b, t);
             return 4;
         }
         int OpCodeRead() {
             int param = memory[pos+1];
             int input = Read();
             memory[param] = input;
-            //std::cout << "opcode 3: param = " << param << ", input = " << input << std::endl;
             return 2;
         }
         int OpCodePrint() {
-            int param = access(1, mode->next());
-            //std::cout << "opcode 4: param = " << param << std::endl;
+            int param = access(1);
             printf("instruction %d: %d\n", pos, param);
             return 2;
         }
         int OpCodeExit() {
             return -1;
+        }
+
+        int OpCodeJIT() {
+            int a = access(1);
+            int b = access(2);
+            if (a != 0) {
+                return b;
+            }
+            return pos + 3;
+        }
+
+        int OpCodeJIF() {
+            int a = access(1);
+            int b = access(2);
+            if (a == 0) {
+                return b;
+            }
+            return pos + 3;
+        }
+
+        int OpCodeLessThan() {
+            int a = access(1);
+            int b = access(2);
+            int t = memory[pos+3];
+            memory[t] = (a < b ? 1 : 0);
+            return 4;
+        }
+
+        int OpCodeEQ() {
+            int a = access(1);
+            int b = access(2);
+            int t = memory[pos+3];
+            memory[t] = (a == b ? 1 : 0);
+            return 4;
         }
 
         void p() {
@@ -158,5 +199,10 @@ int main()
     machine->input.push_back(1);
     machine->Run();
 
+
+    machine->Load(str);
+    machine->input.push_back(5);
+    machine->Run();
+    
     return 0;
 }
