@@ -12,16 +12,16 @@ int main()
     int settings[] = {0,1,2,3,4};
 
     int max = 0;
-    int input = 0;
+    int input;
 
     do {
         input = 0;
         for (int i = 0; i < 5; i++) {
             auto machine = new IntCode(str);
-            machine->input.push_back(settings[i]);
-            machine->input.push_back(input);
+            machine->Feed(settings[i]);
+            machine->Feed(input);
             machine->Run();
-            input = machine->output[0];
+            input = machine->Output();
             delete machine;
         }
 
@@ -31,7 +31,45 @@ int main()
 
     } while (std::next_permutation(settings, settings + 5));
 
-    std::cout << max;
+    std::cout << "Part One: " << max << std::endl;
+
+
+    int p2settings[] = {5,6,7,8,9};
+    IntCode * machines[5];
+
+    max = 0;
+    do {
+        for (int i = 0; i < 5; i++) {
+            machines[i] = new IntCode(str);
+            machines[i]->Feed(p2settings[i]);
+        }
+        machines[0]->Feed(0);
+
+        bool exited;
+        int lastoutput;
+        do {
+            exited = true;
+            for (int i = 0; i < 5; i++) {
+                if (!machines[i]->Run()) {
+                    exited = false;
+                }
+                while (machines[i]->HasOutput()) {
+                    int out = machines[i]->Output();
+                    if (i == 4) {
+                        lastoutput = out;
+                    }
+                    machines[(i+1)%5]->Feed(out);
+                }
+            }
+        } while (!exited);
+
+        if (lastoutput > max) {
+            max = lastoutput;
+        }
+
+    } while (std::next_permutation(p2settings, p2settings + 5));
+
+    std::cout << "Part Two: " << max << std::endl;
 
     return 0;
 }
