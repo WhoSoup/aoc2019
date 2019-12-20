@@ -39,18 +39,6 @@ class IntCode {
             while (pos != -1) {
                 mode = new Mode(memory[pos]);
 
-                /*for (int i = 0; i < memory.size(); i++) {
-                    if (i > 0) {
-                        printf(",");
-                    }
-                    if (i == pos) {
-                        printf(">%d<", memory[i]);
-                    } else {
-                        printf("%d", memory[i]);
-                    }
-                }
-                printf("\n");*/
-
                 switch (mode->opcode()) {
                     case 1:
                         pos += OpCodeAdd();
@@ -87,19 +75,6 @@ class IntCode {
                         return false;
                 }
 
-                /*for (int i = 0; i < memory.size(); i++) {
-                    if (i > 0) {
-                        printf(",");
-                    }
-                    if (i == pos) {
-                        printf(">%d<", memory[i]);
-                    } else {
-                        printf("%d", memory[i]);
-                    }
-                }
-                printf("\n======================================\n");*/
-
-
                 delete mode;
             }
             return true;
@@ -122,7 +97,6 @@ class IntCode {
             int b = access(2);
             int t = memory[pos+3];
             memory[t] = a+b;
-//            printf("Add(%d, %d) => %d\n", a,b,t);
             return 4;
         }
         int OpCodeMul() {
@@ -130,7 +104,6 @@ class IntCode {
             int b = access(2);
             int t = memory[pos+3];
             memory[t] = a*b;
-//            printf("Mul(%d, %d) => %d\n", a,b,t);
             return 4;
         }
         int OpCodeRead() {
@@ -138,24 +111,20 @@ class IntCode {
             int in = input.front();
             input.pop();
             memory[param] = in;
-//            printf("Read[%d] = %d\n", param, in);
             return 2;
         }
         int OpCodeOutput() {
             int param = access(1);
             output.push(param);
-//            printf("Output = %d\n", param);
             return 2;
         }
         int OpCodeExit() {
-//            printf("Exit\n");
             return -1;
         }
 
         int OpCodeJIT() {
             int a = access(1);
             int b = access(2);
-//            printf("Jump to %d? %d\n", b, a!=0);
             if (a != 0) {
                 return b;
             }
@@ -165,7 +134,7 @@ class IntCode {
         int OpCodeJIF() {
             int a = access(1);
             int b = access(2);
-//            printf("Jump to %d? %d\n", b, a==0);
+
             if (a == 0) {
                 return b;
             }
@@ -176,7 +145,6 @@ class IntCode {
             int a = access(1);
             int b = access(2);
             int t = memory[pos+3];
-//            printf("LessThan[%d] = %d < %d\n", t, a, b);
             memory[t] = (a < b ? 1 : 0);
             return 4;
         }
@@ -185,15 +153,7 @@ class IntCode {
             int a = access(1);
             int b = access(2);
             int t = memory[pos+3];
-//            printf("Equal[%d] = %d < %d\n", t, a, b);
             memory[t] = (a == b ? 1 : 0);
             return 4;
-        }
-
-        void p() {
-            for (int i: memory) {
-                printf("%d ", i);
-            }
-            printf("\n");
         }
 };
