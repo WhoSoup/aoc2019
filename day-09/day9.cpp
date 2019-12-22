@@ -10,9 +10,20 @@ int main() {
 
     machine->Run();
 
+    printf("Part One: ");
     while (machine->HasOutput()) {
         printf("%lld ", machine->Output());
     }
+    printf("\n");
 
+    machine->Load(in);
+    machine->Feed(2);
+
+    machine->Run();
+
+    printf("Part Two: ");
+    while (machine->HasOutput()) {
+        printf("%lld ", machine->Output());
+    }
     printf("\n");
 }
